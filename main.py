@@ -1,5 +1,6 @@
 from forex_python.converter import CurrencyRates, CurrencyCodes
 import tkinter as tk
+from tkinter import *
 import requests
 
 URL =  'https://api.ratesapi.io/api/latest'
@@ -17,56 +18,90 @@ class Application(tk.Frame):
 
     def __init__(self, master=None):
         super().__init__(master)
+        self.grid()
         self.master = master
-        self.pack()
         self.create_widgets()
+        self.label = tk.Label(root)
+        self.listbox = tk.Listbox(root)
 
     def create_widgets(self):
 
-        self.bottomframe = tk.Frame()
-        self.bottomframe.pack(side='bottom')
+        self.first_curr = tk.Button(self,text='Choose your first currency', padx=100, pady=20)
+        self.second_curr = tk.Button(self,text='Choose your second currency', padx=100, pady=20)
 
-        self.first_curr = tk.Button(self, padx= 30, pady=30)
-        self.second_curr = tk.Button(self, padx= 30, pady=30)
+        self.symbols = tk.Button(self, text='Symbols', padx=100, pady=20)
 
-        self.first_curr["text"] = "Choose your first currency"
-        self.second_curr["text"] = "Choose your second currency"
         self.first_curr["command"] = self.choose_first
         self.second_curr["command"] = self.choose_second
+        self.symbols["command"] = self.show_symbols
 
-        self.first_curr.pack( side="left", fill='x', padx=20, pady = 30,expand=1)
-        self.second_curr.pack( side="right",fill='x',padx=20, pady = 30,)
+        self.first_entry = tk.Entry(width = 50)
+        self.second_entry = tk.Entry(width = 50)
 
-        self.quit = tk.Button(self.bottomframe, text="QUIT", fg="red",
-                              command=self.master.destroy)
-        self.quit.pack( side="bottom", pady=100)
+        #self.grid_columnconfigure(2, weight=1)
 
-    def create_list_of_currencies(self, side='left'):
+        self.first_curr.grid(row=0, column =0, pady=30, padx=20)
+        self.second_curr.grid(row=0, column=1, pady=30, padx=20)
+        self.first_entry.grid(row=1, column=0, padx=20)
+        self.second_entry.grid(row=1, column=1, padx=20)
+
+        self.symbols.grid(row=4,column=2,padx=20)
+
+        self.quit = tk.Button(text="QUIT", fg="red", command=self.master.destroy)
+        self.quit.grid(row = 3, column=0)
+
+    def create_list_of_currencies(self, column='0', event = "<<ListboxSelect>>"):
 
         self.scrollbar = tk.Scrollbar()
-        self.scrollbar.pack(side=side,padx =10 ,fill='x')
+        self.scrollbar.grid(column = column, row = 2)
 
-        mylist = tk.Listbox(root, yscrollcommand=self.scrollbar.set)
+        mylist = tk.Listbox(yscrollcommand=self.scrollbar.set)
         for key in currency_keys:
             mylist.insert('end', key)
 
-        mylist.pack(side=side, padx=20, fill='both')
+        mylist.grid(column=column, row = 2)
         self.scrollbar.config(command=mylist.yview)
+
+    def callback(self):
+
+        selection = self.widget.curselection()
+        if selection:
+            index = selection[0]
+            data = self.widget.get(index)
+            self.label.configure(text=data)
+        else:
+            self.label.configure(text=' ')
 
     def choose_first(self):
 
-        self.create_list_of_currencies()
+        first = self.create_list_of_currencies()
+        self.listbox.bind("<<ListboxSelect>>", self.callback)
+        global first_symbol
+        first_symbol = self.label.cget('text')
+
 
     def choose_second(self):
 
-        self.create_list_of_currencies(side='right')
+        second = self.create_list_of_currencies(column='1')
+        self.listbox.bind("<<ListboxSelect>>", self.callback)
+        self.label.cget('text')
+        global second_symbol
+        second_symbol = self.label.cget('text')
 
+
+    def show_symbols(self):
+
+        print(first_symbol)
+        print(second_symbol)
 
 root = tk.Tk()
 app = Application(master=root)
-app.master.maxsize(1000,400)
-app.master.minsize(1000,400)
+app.master.maxsize(1300,400)
+app.master.minsize(1300,400)
 app.mainloop()
 
 
+
+
 #mybutton.grid(row=0,column=0)
+#, padx= 30, pady=30

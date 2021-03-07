@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import *
 import requests
 
+
 URL =  'https://api.ratesapi.io/api/latest'
 r = requests.get(url=URL)
 keys_data = r.json()
@@ -36,9 +37,13 @@ class Application(tk.Frame):
 
         self.left_frame = Frame(self)
         self.left_frame.grid(column=0,row=2)
+        self.left_name = Label(self.left_frame)
+        self.left_name.grid()
 
         self.right_frame = Frame(self)
         self.right_frame.grid(column=2, row=2)
+        self.right_name = Label(self.right_frame)
+        self.right_name.grid()
 
         self.amount = Entry(self)
         self.amount.grid(column=1, row = 2)
@@ -48,16 +53,11 @@ class Application(tk.Frame):
 
     def show_full_first(self, curr):
 
-            self.name = Label(self.left_frame)
-            self.name.grid()
-            self.name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
-
+        self.left_name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
 
     def show_full_second(self, curr):
 
-            self.name = Label(self.right_frame)
-            self.name.grid()
-            self.name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
+        self.right_name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
 
     def count(self):
 
@@ -65,6 +65,11 @@ class Application(tk.Frame):
         amount = float(self.amount.get())
         outcome = Label(root, text=str(rate*amount))
         outcome.grid(column=0, row=4)
+
+        def show_pre_rates(self):
+
+            pass
+
 
 
 root = tk.Tk()

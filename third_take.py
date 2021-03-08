@@ -2,17 +2,15 @@ from forex_python.converter import CurrencyRates, CurrencyCodes
 import tkinter as tk
 from tkinter import *
 import requests
-
+import datetime
+import matplotlib.pyplot as plt
 
 URL =  'https://api.ratesapi.io/api/latest'
 r = requests.get(url=URL)
 keys_data = r.json()
 currency_keys = keys_data['rates'].keys()
 
-
 c = CurrencyRates()
-print(c.get_rate('USD', 'PLN'))
-
 codes = CurrencyCodes()
 
 class Application(tk.Frame):
@@ -51,13 +49,19 @@ class Application(tk.Frame):
         self.count = Button(self, text="Count", command=self.count)
         self.count.grid(column=1,row=3)
 
+        self.show_history = Button(self, text='Show historical rates', command=self.show_pre_rates)
+        self.show_history.grid(column = 1, row=4)
+
+
     def show_full_first(self, curr):
 
         self.left_name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
 
+
     def show_full_second(self, curr):
 
         self.right_name.configure(text=f'{codes.get_currency_name(curr)} {codes.get_symbol(curr)}')
+
 
     def count(self):
 
@@ -66,15 +70,28 @@ class Application(tk.Frame):
         outcome = Label(root, text=str(rate*amount))
         outcome.grid(column=0, row=4)
 
-        def show_pre_rates(self):
 
-            pass
+    def show_pre_rates(self):
+
+        tday = datetime.date.today()
+        date = tday - datetime.timedelta(days=30)
+        historical_rates = []
+        dates = []
+
+        for i in range((tday - date).days):
+            historical_rates.append(c.get_rate(self.first_clicked.get(), self.second_clicked.get(), date + datetime.timedelta(days=i)))
+            dates.append(date + datetime.timedelta(days=i))
+
+        plt.plot(dates, historical_rates, linestyle='dashed', marker='o')
+        plt.xticks(rotation=30)
+        plt.ylabel(f'{str(self.first_clicked.get())}:{str(self.second_clicked.get())}')
+        plt.xlabel('Date')
+        plt.show()
 
 
 
 root = tk.Tk()
+root.geometry()
 app = Application(master=root)
 app.master.title("Currency exchange calculator")
-# app.master.maxsize(1300,400)
-# app.master.minsize(1300,400)
 app.mainloop()
